@@ -11,10 +11,12 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
+import Link from "next/link";
 import React from "react";
+import { signUp } from "@/lib/auth-client";
 
-const SignUp = () => {
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+const SignUp = ()  => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data: Record<string, string> = {};
@@ -23,8 +25,13 @@ const SignUp = () => {
       data[key] = value.toString();
 
     });
-    alert("Form submitted successfully!");
-    console.log("Form Data:", data);
+    const { data :signUpData, error } = await signUp.email({
+    name: data.name, // required, The name of the user.
+    email: data.email, // required, The email address of the user.
+    password: data.password, // required, The password of the user. It should be at least 8 characters long and max 128 by default.
+    callbackURL: "/", // Relative path on this site, so it's always a trusted origin.
+});
+    console.log("Form Data:", signUpData, error);
   };
 
   return (
@@ -113,8 +120,14 @@ const SignUp = () => {
         </Fieldset>
       </Form>
 
-        <p className="animate-fade-up mt-6 text-center [animation-delay:0.9s] text-xs text-zinc-500 dark:text-zinc-400">
-          By signing up, you agree to our Terms of Service and Privacy Policy.
+        <p className="animate-fade-up mt-6 text-center text-sm text-zinc-500 [animation-delay:0.9s] dark:text-zinc-400">
+          Already have an account?{" "}
+          <Link
+            href="/sign-in"
+            className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
+          >
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

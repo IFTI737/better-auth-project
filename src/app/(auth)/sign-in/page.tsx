@@ -11,10 +11,23 @@ import {
   TextField,
 } from "@heroui/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
+import { ToastContainer, toast } from "react-toastify";
 import { signIn } from "@/lib/auth-client";
 
+// Friendly messages keyed by Better Auth error codes
+const errorMessages: Record<string, string> = {
+  INVALID_EMAIL_OR_PASSWORD: "Incorrect email or password. Please try again.",
+  INVALID_PASSWORD: "Incorrect password. Please try again.",
+  INVALID_EMAIL: "That email address is not valid.",
+  USER_NOT_FOUND: "No account found with this email.",
+  EMAIL_NOT_VERIFIED: "Please verify your email before signing in.",
+};
+
 const SignIn = () => {
+  const router = useRouter();
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -28,11 +41,22 @@ const SignIn = () => {
       password: data.password, // required, The password of the user.
       callbackURL: "/", // Relative path on this site, so it's always a trusted origin.
     });
-    console.log("Form Data:", signInData, error);
+    if (error) {
+      toast.error(
+        (error.code && errorMessages[error.code]) ||
+          error.message ||
+          "Something went wrong. Please try again.",
+      );
+      return;
+    }
+    toast.success("Signed in successfully!");
+    console.log("Form Data:", signInData);
+    router.push("/");
   };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-indigo-50 via-white to-purple-50 p-4 dark:from-zinc-950 dark:via-zinc-900 dark:to-indigo-950">
+      <ToastContainer position="top-center" autoClose={4000} theme="colored" />
       <div className="animate-float pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-indigo-400/30 blur-3xl" />
       <div className="animate-float-slow pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-purple-400/30 blur-3xl" />
       <div className="animate-float pointer-events-none absolute left-1/2 top-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-sky-300/20 blur-3xl" />

@@ -1,4 +1,9 @@
+"use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { signOut, useSession } from "@/lib/auth-client";
+
 
 const features = [
   {
@@ -46,6 +51,18 @@ const ghostButton =
   "inline-flex items-center justify-center rounded-xl border border-zinc-300 bg-white/60 px-6 py-3 text-sm font-semibold text-zinc-800 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-white active:scale-[0.98] dark:border-white/15 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10";
 
 export default function Home() {
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/sign-in"); // redirect to login page
+        },
+      },
+    });
+  };
   return (
     <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-indigo-50 via-white to-purple-50 text-zinc-900 dark:from-zinc-950 dark:via-zinc-900 dark:to-indigo-950 dark:text-zinc-100">
       <div className="animate-float pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-indigo-400/30 blur-3xl" />
@@ -61,15 +78,34 @@ export default function Home() {
           <span className="text-lg font-bold tracking-tight">AuthApp</span>
         </Link>
         <nav className="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/sign-in"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-indigo-600 dark:text-zinc-300 dark:hover:text-indigo-400"
-          >
-            Sign in
-          </Link>
-          <Link href="/sign-up" className={`${gradientButton} px-4! py-2!`}>
-            Get started
-          </Link>
+          {isPending ? (
+            <span className="h-9 w-28 animate-pulse rounded-xl bg-zinc-200/70 dark:bg-white/10" />
+          ) : session?.user ? (
+            <>
+              <span className="hidden text-sm font-medium text-zinc-600 dark:text-zinc-300 sm:inline">
+                {session.user.name}
+              </span>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className={`${gradientButton} px-4! py-2!`}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/sign-in"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-indigo-600 dark:text-zinc-300 dark:hover:text-indigo-400"
+              >
+                Sign in
+              </Link>
+              <Link href="/sign-up" className={`${gradientButton} px-4! py-2!`}>
+                Get started
+              </Link>
+            </>
+          )}
         </nav>
       </header>
 

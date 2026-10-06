@@ -96,3 +96,9 @@
     opacity: 1;
   }
 }
+
+/* Keep the animated blurred blobs on the GPU so they don't repaint the page */
+.animate-float,
+.animate-float-slow {
+  will-change: transform;
+}

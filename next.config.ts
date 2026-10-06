@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Only load the HeroUI components actually used, which speeds up dev compiles.
+    optimizePackageImports: ["@heroui/react"],
+  },
 };
 
 export default nextConfig;
